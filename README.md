@@ -1,6 +1,42 @@
 # FarmingRPGGame
  A farming RPG game
 
+<H1>2024.4.30</H1>
+
+PropertyDrawer是Unity中的一个功能强大的类，它允许你自定义Inspector中的属性显示方式。通过自定义PropertyDrawer，你可以为特定类型的属性创建自定义的Inspector显示方式，使其更加直观、易于理解，或者根据你的需求进行定制化。
+
+ScriptableObject 是 Unity 中的一种特殊类型，它用于创建可重用的、自定义的数据容器，可以在编辑器中创建并保存数据。
+ScriptableObject 可以像 MonoBehaviour 一样被序列化，但是不依赖于场景中的 GameObject，因此可以在项目中的多个地方共享数据。
+一般用于：
+
+1. 配置数据：保存游戏中的配置信息，例如关卡数据、角色属性、技能设置等。
+2. 资源管理：存储和管理游戏中使用的资源，例如纹理、音频、动画片段等。
+3. 事件通知：充当事件系统的一部分，用于发送和接收消息。
+4. 编辑器工具：创建自定义的编辑器工具，帮助开发人员在 Unity 编辑器中更高效地工作。
+
+```c#
+//CreateAssetMenu 在菜单中创建了一个类别为Scriptable Objects/Item/Item List的对象，默认名字是so_ItemList：
+[CreateAssetMenu(fileName = "so_ItemList", menuName ="Scriptable Objects/Item/Item List")]
+public class SO_ItemList : ScriptableObject
+{
+    //[SerializeField] 可以在unity中显示和编辑
+    [SerializeField]
+    public List<ItemDetials> itemDetials;
+
+
+}
+```
+可以在Unity编辑器中直接将物品添加到so_ItemList对象的itemDetails中。
+
+当物体数量过多时，可以将信息写入json文件中，通过脚本将json文件中的信息写入itemDetails。如果有需要存储的资源信息，则可以记录资源的路径，将这些资源放在统一的文件夹中方便读取
+
+
+今日进度：
+
+ 1. 实现游戏物体遮挡玩家时的渐隐渐显效果
+ 2. 统一物品相关的信息设置
+ 3. 自定义属性绘制器，无需运行即可在Inspector上显示游戏物体代码对应的物体描述，避免绑定的物品代码数字错误
+
 <H1>2024.4.29</H1>
 创建场景 
 

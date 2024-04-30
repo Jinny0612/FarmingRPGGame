@@ -6,6 +6,14 @@ using UnityEngine;
 /// </summary>
 public static class Settings 
 {
+    //遮盖玩家的物体颜色透明度的变化
+    public const float fadeInSeconds = 0.25f;
+    public const float fadeOutSeconds = 0.35f;
+    /// <summary>
+    /// 目标透明度
+    /// </summary>
+    public const float targetAlpha = 0.45f;
+
     //玩家移动参数
     public const float runningSpeed = 5.333f;
     public const float walkingSpeed = 2.666f;
