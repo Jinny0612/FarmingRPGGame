@@ -31,8 +31,20 @@ public class Item : MonoBehaviour
         }
     }
 
+    //根据设定的物品代码初始化物品信息
     private void Init(int itemCodeParam)
     {
-
+        if (ItemCode != 0)
+        {
+            ItemCode = itemCodeParam;
+            ItemDetails itemDetails = InventoryManager.Instance.GetItemDetails(ItemCode);
+            spriteRenderer.sprite = itemDetails.itemSprite;
+            //判断这个物品是否是可收获物品
+            if(itemDetails.itemType == ItemType.Reapable_scenary)
+            {
+                //添加晃动效果
+                gameObject.AddComponent<ItemNudge>();
+            }
+        }
     }
 }

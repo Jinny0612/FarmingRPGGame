@@ -20,6 +20,9 @@ public enum Direction
     none
 }
 
+/// <summary>
+/// 物品类型枚举值
+/// </summary>
 public enum ItemType
 {
     Seed,//种子
@@ -30,8 +33,18 @@ public enum ItemType
     Breaking_tool,//稿子
     Reaping_tool,//收割工具
     Collecting_tool,//收集工具
-    Reapable_scenary,//可获得的场景？？？
+    Reapable_scenary,//可收获的场景（例如浆果灌木丛）
     Furniture,//家具
     none,
     count//列表中物品的数量
+}
+
+/// <summary>
+/// 物品存储位置枚举值
+/// </summary>
+public enum InventoryLocation
+{
+    player,//玩家背包
+    chest,//储物箱
+    count//数量
 }

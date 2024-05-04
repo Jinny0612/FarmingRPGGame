@@ -33,6 +33,8 @@ public class Player : SingletonMonoBehvior<Player>
     private bool isPickingLeft;
     private ToolEffect toolEffect = ToolEffect.none;
 
+    private Camera mainCamera;
+
     private new Rigidbody2D rigidbody2D;
 
     private Direction playerDirection;
@@ -47,32 +49,41 @@ public class Player : SingletonMonoBehvior<Player>
     {
         base.Awake();
         rigidbody2D = GetComponent<Rigidbody2D>();
+
+        //获取主相机的引用
+        mainCamera = Camera.main;
     }
 
     private void Update()
     {
-        #region 玩家输入
+        //玩家输入违禁用，玩家可以移动
+        if(!PlayerInputIsDisabled)
+        {
+            #region 玩家输入
 
-        //重置玩家动画触发器
-        ResetAnimationTriggers();
+            //重置玩家动画触发器
+            ResetAnimationTriggers();
 
-        //检测玩家移动输入
-        PlayerMovementInput();
+            //检测玩家移动输入
+            PlayerMovementInput();
 
-        //检测步行/跑步输入
-        PlayerWalkInput();
+            //检测步行/跑步输入
+            PlayerWalkInput();
 
-        //将玩家行为事件发送给监听者
-        EventHandler.CallMovementEvent(xInput, yInput, isWalking, isRunning, isIdle, isCarrying,
-            toolEffect,
-            isUsingToolRight, isUsingToolLeft, isUsingToolUp, isUsingToolDown,
-            isLiftingToolRight, isLiftingToolLeft, isLiftingToolUp, isLiftingToolDown,
-            isPickingRight, isPickingLeft, isPickingUp, isPickingDown,
-            isSwingingToolRight, isSwingingToolLeft, isSwingingToolUp, isSwingingToolDown,
-            false, false, false, false
-            );
+            //将玩家行为事件发送给监听者
+            EventHandler.CallMovementEvent(xInput, yInput, isWalking, isRunning, isIdle, isCarrying,
+                toolEffect,
+                isUsingToolRight, isUsingToolLeft, isUsingToolUp, isUsingToolDown,
+                isLiftingToolRight, isLiftingToolLeft, isLiftingToolUp, isLiftingToolDown,
+                isPickingRight, isPickingLeft, isPickingUp, isPickingDown,
+                isSwingingToolRight, isSwingingToolLeft, isSwingingToolUp, isSwingingToolDown,
+                false, false, false, false
+                );
 
-        #endregion
+            #endregion
+        }
+
+
     }
 
     private void FixedUpdate()
@@ -190,5 +201,56 @@ public class Player : SingletonMonoBehvior<Player>
         isPickingRight = false;
         isPickingLeft = false;
         toolEffect = ToolEffect.none;
+    }
+
+    public void DisablePlayerInputAndResetMovement()
+    {
+        //禁用角色输入，即角色暂时无法移动
+        DisablePlayerInput();
+        ResetMovement();
+
+        //发布角色移动事件
+        EventHandler.CallMovementEvent(xInput, yInput, isWalking, isRunning, isIdle, isCarrying, toolEffect,
+            isUsingToolRight, isUsingToolLeft, isUsingToolUp, isUsingToolDown,
+            isLiftingToolRight, isLiftingToolLeft, isLiftingToolUp, isLiftingToolDown,
+            isPickingRight, isPickingLeft, isPickingUp, isPickingDown,
+            isSwingingToolRight, isSwingingToolLeft, isSwingingToolUp, isSwingingToolDown,
+            false, false, false, false);
+    }
+
+    /// <summary>
+    /// 重置角色移动信息
+    /// </summary>
+    private void ResetMovement()
+    {
+        xInput = 0f;
+        yInput = 0f;
+        isRunning = false;
+        isWalking = false;
+        isIdle = true;
+    }
+
+    /// <summary>
+    /// 禁用角色输入
+    /// </summary>
+    public void DisablePlayerInput()
+    {
+        PlayerInputIsDisabled = true;
+    }
+
+    /// <summary>
+    /// 启用角色输入
+    /// </summary>
+    public void EnablePlayerInput()
+    {
+        PlayerInputIsDisabled = false;
+    }
+
+    public Vector3 GetPlayerViewportPosition()
+    {
+        //将世界坐标转换为视口坐标的方法。视口坐标是相对于相机视图的归一化坐标系，
+        //范围从 (0,0) 到 (1,1)，其中 (0,0) 表示视图的左下角，(1,1) 表示视图的右上角。
+        //这在许多情况下都很有用，例如用于屏幕空间特效、UI 元素的定位等。
+        return mainCamera.WorldToViewportPoint(transform.position);
     }
 }

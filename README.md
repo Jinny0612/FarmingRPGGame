@@ -1,6 +1,43 @@
 # FarmingRPGGame
  A farming RPG game
 
+ <H1>2024.5.4</H1>
+
+ 1. 绘制角色背包工具栏ui，实现拾取物品在ui中显示的功能
+ 2. 实现从背包工具栏拖拽物体放到地图上的功能
+
+
+```c#
+    /// <summary>
+    /// 将拖拽物体放置到鼠标当前位置
+    /// </summary>
+    private void DropSelectedItemAtMousePosition()
+    {
+        if(itemDetails != null)
+        {
+            //这里将坐标转换为世界坐标，否则后面实例化预制体会导致位置错误，不在相机范围内显示
+            Vector3 worldPosition = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -mainCamera.transform.position.z));
+
+            //从预制体中实例化一个物体到鼠标当前位置
+            GameObject itemGameObject = Instantiate(itemPerfab, worldPosition, Quaternion.identity, parentItem);
+            Item item = itemGameObject.GetComponent<Item>();
+            item.ItemCode = itemDetails.itemCode;
+
+            //从库存中移除物品
+            InventoryManager.Instance.RemoveItem(InventoryLocation.player,item.ItemCode);
+        }
+    }
+```
+ScreenToWorldPoint:用于将屏幕上的点坐标转换为世界空间中的点坐标。通常情况下，这个方法用于将鼠标点击位置转换为在世界空间中的位置，以便在游戏中执行相应的操作。
+
+ScreenToViewportPoint:用于将屏幕上的点坐标转换为视口坐标，它会将屏幕上的点坐标转换为相对于摄像机视野的一个点的坐标，范围在 (0, 0) 到 (1, 1) 之间。
+
+<H1>2024.5.3</H1>
+
+1. 实现经过场景中可收获的场景物体时，场景物体轻轻晃动的效果
+2. 实现简单库存管理，与可拾取物体碰撞时捡起物体放入player背包库存中
+
+
 <H1>2024.4.30</H1>
 
 PropertyDrawer是Unity中的一个功能强大的类，它允许你自定义Inspector中的属性显示方式。通过自定义PropertyDrawer，你可以为特定类型的属性创建自定义的Inspector显示方式，使其更加直观、易于理解，或者根据你的需求进行定制化。

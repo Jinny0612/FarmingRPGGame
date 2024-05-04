@@ -14,9 +14,21 @@ public static class Settings
     /// </summary>
     public const float targetAlpha = 0.45f;
 
-    //玩家移动参数
-    public const float runningSpeed = 5.333f;
-    public const float walkingSpeed = 2.666f;
+    # region 玩家移动参数
+    public const float runningSpeed = 8f;//5.333f;
+    public const float walkingSpeed = 4f;//2.666f;
+    #endregion
+
+    #region 库存相关
+    /// <summary>
+    /// 玩家初始背包容量
+    /// </summary>
+    public static int playerInitialInventoryCapacity = 24;
+    /// <summary>
+    /// 玩家最大背包容量
+    /// </summary>
+    public static int playerMaximumInventoryCapacity = 48;
+    #endregion
 
     //与player动画器中的参数名相同
     //玩家动画参数

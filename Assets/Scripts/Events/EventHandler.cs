@@ -1,4 +1,5 @@
-
+using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// 玩家移动相关事件代理
@@ -38,12 +39,26 @@ public delegate void MovementDelegate(float inputx, float inputy, bool isWalking
                                         bool isSwingingToolRight, bool isSwingingToolLeft, bool isSwingingToolUp, bool isSwingingToolDown,
                                         bool idleUp, bool idleDown, bool idleLeft, bool idleRight);
 
+
+
 /// <summary>
 /// 公共事件处理类
 /// 公共静态类通常用于定义一些全局的、通用的功能或者工具类，这些功能可能会被整个应用程序使用   无法被实例化
 /// </summary>
 public static class EventHandler
 {
+
+    //库存更新事件
+    public static event Action<InventoryLocation, List<InventoryItem>> InventoryUpdatedEvent;
+
+    public static void CallInventoryUpdatedEvent(InventoryLocation inventoryLocation,List<InventoryItem> inventoryItemList)
+    {
+        if (InventoryUpdatedEvent != null)
+        {
+            InventoryUpdatedEvent(inventoryLocation, inventoryItemList);
+        }
+    }
+
 
     //玩家移动事件  订阅者
     public static event MovementDelegate MovementEvent;
