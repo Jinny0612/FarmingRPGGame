@@ -65,6 +65,15 @@ public static class Settings
     public static int idleRight;
 
 
+    //工具描述
+    public const string HoeingTool = "Hoe";
+    public const string ChoppingTool = "Axe";
+    public const string BreakingTool = "Pickaxe";
+    public const string ReapingTool = "Scythe";
+    public const string WateringTool = "Watering Can";
+    public const string CollectingTool = "Basket";
+
+
     static Settings()
     {
         //玩家动画参数

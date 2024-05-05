@@ -17,6 +17,13 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
     private Dictionary<int,ItemDetails> itemDetailsDictionary;
 
     /// <summary>
+    /// 在库存中选中的项目
+    /// 下标：库存类型
+    /// value：itemcode
+    /// </summary>
+    private int[] selectedInventoryItem;
+
+    /// <summary>
     /// 库存列表
     /// 数组每个元素都是一个list
     /// </summary>
@@ -42,6 +49,13 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
 
         //物品信息在awake中初始化，确保使用时在awake后使用
         CreateItemDetailsDictionary();
+
+        //实例化选中的库存项目数组
+        selectedInventoryItem = new int[(int)InventoryLocation.count];
+        for(int i = 0; i< selectedInventoryItem.Length; i++)
+        {
+            selectedInventoryItem[i] = -1;
+        }
     }
 
     /// <summary>
@@ -98,7 +112,7 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
         List<InventoryItem> inventoryList = inventoryLists[(int)itemLocation];
 
         //判断库存中是否已经有这个物品
-        int itemPosition = FindItemInventory(itemLocation, item);
+        int itemPosition = FindItemInInventory(itemLocation, item);
 
         if(itemPosition != -1)
         {
@@ -164,7 +178,7 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
     /// <param name="itemLocation"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    private int FindItemInventory(InventoryLocation itemLocation, Item item)
+    public int FindItemInInventory(InventoryLocation itemLocation, Item item)
     {
         //当前的库存列表
         List<InventoryItem> inventoryList = inventoryLists[(int)itemLocation];
@@ -185,7 +199,7 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
     /// <param name="itemLocation"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    private int FindItemInventory(InventoryLocation itemLocation, int itemCode)
+    public int FindItemInInventory(InventoryLocation itemLocation, int itemCode)
     {
         //当前的库存列表
         List<InventoryItem> inventoryList = inventoryLists[(int)itemLocation];
@@ -229,7 +243,7 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
         //获取当前库存物品列表
         List<InventoryItem> inventoryList = inventoryLists[(int)inventoryLocation];
         //检测物品是否在库存中存在
-        int itemPosition = FindItemInventory(inventoryLocation,itemCode);
+        int itemPosition = FindItemInInventory(inventoryLocation,itemCode);
 
         if(itemPosition != -1)
         {
@@ -265,4 +279,82 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
             inventoryList.RemoveAt(itemPosition);
         }
     }
+
+    /// <summary>
+    /// 交换库存中两个槽位的物品
+    /// </summary>
+    /// <param name="fromItem">被拖拽物品的初始位置</param>
+    /// <param name="toItem">被拖拽物品的目标位置</param>
+    public void SwapInventoryItems(InventoryLocation inventoryLocation, int fromItem, int toItem)
+    {
+        //初始位置和目标位置都在库存范围内，且不相等，且都不小于0
+        //这里比较的是库存物品总数，如果需要可以放到空的插槽，应该要跟角色库存容量相比
+        if(fromItem < inventoryLists[(int)inventoryLocation].Count && toItem < inventoryLists[(int)inventoryLocation].Count
+            && fromItem != toItem && fromItem >= 0 && toItem >= 0)
+        {
+            //获取两个位置物品信息
+            InventoryItem fromInventoryItem = inventoryLists[(int)inventoryLocation][fromItem];
+            InventoryItem toInventoryItem = inventoryLists[(int)inventoryLocation][toItem];
+            //交换
+            inventoryLists[(int)inventoryLocation][toItem] = fromInventoryItem;
+            inventoryLists[(int)inventoryLocation][fromItem] = toInventoryItem;
+            //发布库存更新事件
+            EventHandler.CallInventoryUpdatedEvent(inventoryLocation, inventoryLists[(int)inventoryLocation]);
+        }
+    }
+
+    /// <summary>
+    /// 获取物品详情
+    /// </summary>
+    /// <param name="itemType"></param>
+    /// <returns></returns>
+    public string GetItemTypeDescription(ItemType itemType)
+    {
+        string itemTypeDescription;
+        switch(itemType)
+        {
+            case ItemType.Breaking_tool:
+                itemTypeDescription = Settings.BreakingTool;
+                break;
+            case ItemType.Chopping_tool:
+                itemTypeDescription = Settings.ChoppingTool;
+                break;
+            case ItemType.Hoeing_tool:
+                itemTypeDescription = Settings.HoeingTool;
+                break;
+            case ItemType.Reaping_tool:
+                itemTypeDescription = Settings.ReapingTool;
+                break;
+            case ItemType.Watering_tool:
+                itemTypeDescription = Settings.WateringTool;
+                break;
+            case ItemType.Collecting_tool:
+                itemTypeDescription = Settings.CollectingTool;
+                break;
+            default:
+                itemTypeDescription = itemType.ToString();
+                break;
+        }
+        return itemTypeDescription;
+    }
+
+    /// <summary>
+    /// 设置库存中被选中的物品
+    /// </summary>
+    /// <param name="inventoryLocation"></param>
+    /// <param name="itemCode"></param>
+    public void SetSelectedInventoryItem(InventoryLocation inventoryLocation,int itemCode)
+    {
+        selectedInventoryItem[(int)inventoryLocation] = itemCode;
+    }
+
+    /// <summary>
+    /// 取消选中
+    /// </summary>
+    /// <param name="inventoryLocation"></param>
+    public void ClearSelectedInventoryItem(InventoryLocation inventoryLocation)
+    {
+        selectedInventoryItem[(int)inventoryLocation] = -1;
+    }
+
 }

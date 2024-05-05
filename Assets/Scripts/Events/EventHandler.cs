@@ -51,6 +51,11 @@ public static class EventHandler
     //库存更新事件
     public static event Action<InventoryLocation, List<InventoryItem>> InventoryUpdatedEvent;
 
+    /// <summary>
+    /// 发布库存更新事件
+    /// </summary>
+    /// <param name="inventoryLocation"></param>
+    /// <param name="inventoryItemList"></param>
     public static void CallInventoryUpdatedEvent(InventoryLocation inventoryLocation,List<InventoryItem> inventoryItemList)
     {
         if (InventoryUpdatedEvent != null)

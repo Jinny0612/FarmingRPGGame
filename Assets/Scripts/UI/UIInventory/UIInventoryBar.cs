@@ -17,6 +17,10 @@ public class UIInventoryBar : MonoBehaviour
     /// </summary>
     [SerializeField] private UIInventorySlot[] inventorySlot = null;
     /// <summary>
+    /// 库存物品详情文本框
+    /// </summary>
+    [HideInInspector] public GameObject inventoryTextBoxGameObject;
+    /// <summary>
     /// 被取出的物品（鼠标拖拽）
     /// </summary>
     public GameObject inventoryBarDraggedItem;
@@ -29,6 +33,8 @@ public class UIInventoryBar : MonoBehaviour
     /// 库存工具栏是否在底部位置
     /// </summary>
     private bool _isInventoryBarPositionBottom = true;
+    
+
     /// <summary>
     /// 库存工具栏是否在底部位置
     /// </summary>
@@ -59,7 +65,11 @@ public class UIInventoryBar : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// 库存更新
+    /// </summary>
+    /// <param name="inventoryLocation"></param>
+    /// <param name="inventoryList"></param>
     private void InventoryUpdated(InventoryLocation inventoryLocation, List<InventoryItem> inventoryList)
     {
         //物品存入角色背包
@@ -86,6 +96,8 @@ public class UIInventoryBar : MonoBehaviour
                             inventorySlot[i].textMeshProUGUI.text = inventoryList[i].itemQuantity.ToString();
                             inventorySlot[i].itemDetails = itemDetails;
                             inventorySlot[i].itemQuantity = inventoryList[i].itemQuantity;
+                            //因为插槽会重建，所以必须要每次都再标记
+                            SetHighlightedInventorySlots(i);
                         }
                     }
                     else
@@ -110,6 +122,7 @@ public class UIInventoryBar : MonoBehaviour
                 inventorySlot[i].textMeshProUGUI.text = "";
                 inventorySlot[i].itemDetails = null;
                 inventorySlot[i].itemQuantity = 0;
+                SetHighlightedInventorySlots(i);
             }
         }
 
@@ -148,6 +161,57 @@ public class UIInventoryBar : MonoBehaviour
             rectTransform.anchoredPosition = new Vector2(0f, -2.5f);
 
             IsInventoryBarPositionBottom = false;
+        }
+    }
+
+    /// <summary>
+    /// 清除选中物体的高亮框
+    /// </summary>
+    public void ClearHighlightOnInventorySlots()
+    {
+        if(inventorySlot.Length > 0)
+        {
+            for(int i = 0; i < inventorySlot.Length; i++)
+            {
+                if (inventorySlot[i].isSelected)
+                {
+                    inventorySlot[i].isSelected = false;
+                    inventorySlot[i].inventorySlotHighlight.color = new Color(0f, 0f, 0f, 0f);
+                    //重置选中信息
+                    InventoryManager.Instance.ClearSelectedInventoryItem(InventoryLocation.player);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 设置选中物体的高亮框
+    /// </summary>
+    public void SetHighlightedInventorySlots()
+    {
+        if(inventorySlot.Length > 0)
+        {
+            for (int i = 0;i < inventorySlot.Length; i++)
+            {
+                SetHighlightedInventorySlots(i);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 设置指定位置物体高亮
+    /// </summary>
+    /// <param name="itemPosition"></param>
+    private void SetHighlightedInventorySlots(int itemPosition)
+    {
+        if(inventorySlot.Length > 0 && inventorySlot[itemPosition].itemDetails != null)
+        {
+            if (inventorySlot[itemPosition].isSelected)
+            {
+                inventorySlot[itemPosition].inventorySlotHighlight.color = new Color(1f,1f, 1f, 1f);
+
+                InventoryManager.Instance.SetSelectedInventoryItem(InventoryLocation.player, inventorySlot[itemPosition].itemDetails.itemCode);
+            }
         }
     }
 }
