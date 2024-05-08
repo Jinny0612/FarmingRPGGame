@@ -269,12 +269,25 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     /// </summary>
     private void SetSelectedItem()
     {
+        //初始化清除高亮框
         inventoryBar.ClearHighlightOnInventorySlots();
-
+        //被选中，展示高亮框
         isSelected = true;
         inventoryBar.SetHighlightedInventorySlots();
-
+        //设置被选中的物品
         InventoryManager.Instance.SetSelectedInventoryItem(InventoryLocation.player, itemDetails.itemCode);
+
+        //显示手中举起选中的物品
+        if(itemDetails.canBeCarried)
+        {
+            //物品可以被举起，显示物品
+            Player.Instance.ShowCarriedItem(itemDetails.itemCode);
+        } 
+        else
+        {
+            //物品无法被举起，不显示
+            Player.Instance.ClearCarriedItem();
+        }
     }
 
     /// <summary>
@@ -287,5 +300,8 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
         isSelected = false;
         //清空选中标识
         InventoryManager.Instance.ClearSelectedInventoryItem(InventoryLocation.player);
+
+        //取消显示手中的物品
+        Player.Instance.ClearCarriedItem();
     }
 }

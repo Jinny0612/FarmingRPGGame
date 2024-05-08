@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using UnityEditor.Search;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ using UnityEngine;
 /// </summary>
 public class Player : SingletonMonoBehvior<Player>
 {
+    #region 角色行为
+
     private float yInput;
     private float xInput;
     private bool isWalking;
@@ -33,14 +36,54 @@ public class Player : SingletonMonoBehvior<Player>
     private bool isPickingLeft;
     private ToolEffect toolEffect = ToolEffect.none;
 
+    #endregion
+
+    #region 角色动画切换相关
+    /// <summary>
+    /// 动画覆盖，用于更改动画控制器中的动画剪辑，可以在运行时替换动画剪辑
+    /// 从而实现角色在不同状态、行为或者环境下播放不同的动画，并且无需修改动画剪辑本身
+    /// </summary>
+    private AnimationOverrides animationOverrides;
+    /// <summary>
+    /// 角色属性自定义列表
+    /// 传递给animationOverrides的角色属性列表
+    /// </summary>
+    private List<CharacterAttribute> characterAttributeCustomissationList;
+
+    /// <summary>
+    /// 已经设置好物品的精灵渲染器
+    /// </summary>
+    [Tooltip("应在perfab中使用已配备的物品精灵渲染器进行填充")]
+    [SerializeField] private SpriteRenderer equippedItemSpriteRenderer = null;
+    /// <summary>
+    /// 角色可切换的属性，手臂
+    /// </summary>
+    private CharacterAttribute armsCharacterAttribute;
+    /// <summary>
+    /// 角色可切换的属性，工具
+    /// </summary>
+    private CharacterAttribute toolCharacterAttribute;
+    #endregion
+
+    /// <summary>
+    /// 主相机
+    /// </summary>
     private Camera mainCamera;
-
+    /// <summary>
+    /// 刚体组件
+    /// </summary>
     private new Rigidbody2D rigidbody2D;
-
+    /// <summary>
+    /// 角色方向，用于存档
+    /// </summary>
     private Direction playerDirection;
-
+    /// <summary>
+    /// 角色移动速度
+    /// </summary>
     private float movementSpeed;
-
+    /// <summary>
+    /// 是否禁用玩家输入，即无法移动
+    /// </summary>
     private bool _playerInputIsDisabled = false;
 
     public bool PlayerInputIsDisabled { get => _playerInputIsDisabled; set => _playerInputIsDisabled = value; }
@@ -49,6 +92,11 @@ public class Player : SingletonMonoBehvior<Player>
     {
         base.Awake();
         rigidbody2D = GetComponent<Rigidbody2D>();
+
+        animationOverrides = GetComponentInChildren<AnimationOverrides>();
+        //实例化可切换的角色属性
+        armsCharacterAttribute = new CharacterAttribute(CharacterPartAnimator.Arms, PartVariantColour.none, PartVariantType.none);
+        characterAttributeCustomissationList = new List<CharacterAttribute>();
 
         //获取主相机的引用
         mainCamera = Camera.main;
@@ -252,5 +300,44 @@ public class Player : SingletonMonoBehvior<Player>
         //范围从 (0,0) 到 (1,1)，其中 (0,0) 表示视图的左下角，(1,1) 表示视图的右上角。
         //这在许多情况下都很有用，例如用于屏幕空间特效、UI 元素的定位等。
         return mainCamera.WorldToViewportPoint(transform.position);
+    }
+
+    /// <summary>
+    /// 显示手上拿着的物品
+    /// </summary>
+    /// <param name="itemCode"></param>
+    public void ShowCarriedItem(int itemCode)
+    {
+        ItemDetails itemDetails = InventoryManager.Instance.GetItemDetails(itemCode);
+        if (itemDetails != null)
+        {
+            //获取拿着的物品的图片
+            equippedItemSpriteRenderer.sprite = itemDetails.itemSprite;
+            equippedItemSpriteRenderer.color = new Color(1f,1f,1f,1f);
+            //设置动画属性，手上携带物品
+            armsCharacterAttribute.partVariantType = PartVariantType.carry;
+            characterAttributeCustomissationList.Clear();
+            characterAttributeCustomissationList.Add(armsCharacterAttribute);
+            animationOverrides.ApplyCharacterCustomisationParameters(characterAttributeCustomissationList);
+            //正在携带物品
+            isCarrying = true;
+        }
+    }
+
+    /// <summary>
+    /// 清除携带物品的显示
+    /// </summary>
+    public void ClearCarriedItem()
+    {
+        equippedItemSpriteRenderer.sprite = null;
+        equippedItemSpriteRenderer.color = new Color(1f,1f,1f,0f);
+
+        //手臂携带动画参数初始化
+        armsCharacterAttribute.partVariantType = PartVariantType.none;
+        characterAttributeCustomissationList.Clear();
+        characterAttributeCustomissationList.Add(armsCharacterAttribute);
+        animationOverrides.ApplyCharacterCustomisationParameters(characterAttributeCustomissationList);
+
+        isCarrying = false;
     }
 }
