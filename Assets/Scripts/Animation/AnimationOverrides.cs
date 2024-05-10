@@ -54,6 +54,7 @@ public class AnimationOverrides : MonoBehaviour
             Animator currentAnimator = null;
             List<KeyValuePair<AnimationClip, AnimationClip>> animsKeyValuePairList = new List<KeyValuePair<AnimationClip, AnimationClip>>();
 
+            //这个参数，要与下面获取的player子物体的动画组件中的动画名称相同
             string animatorSOAssetName = characterAttribute.characterPart.ToString();
 
             Animator[] animatorsArray = character.GetComponentsInChildren<Animator>();

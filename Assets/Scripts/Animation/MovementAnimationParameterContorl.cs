@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+/// <summary>
+/// 角色移动动画参数管理
+/// </summary>
 public class MovementAnimationParameter : MonoBehaviour
 {
 
@@ -28,7 +31,7 @@ public class MovementAnimationParameter : MonoBehaviour
     }
 
     /// <summary>
-    /// 设置动画参数
+    /// 根据发布者的移动参数来设置动画参数
     /// </summary>
     private void SetAnimationParameters(float xinput, float yinput, bool isWalking, bool isRunning, bool isIdle, bool isCarrying, 
         ToolEffect toolEffect, 

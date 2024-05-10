@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 玩家移动相关事件代理
+/// 玩家移动相关事件代理  定义移动事件需要设置的参数
 /// </summary>
 /// <param name="inputx">x方向移动</param>
 /// <param name="inputy">y方向移动</param>
@@ -91,4 +91,98 @@ public static class EventHandler
                 idleUp, idleDown, idleLeft, idleRight);
         }
     }
+
+    #region 游戏时间事件
+    /// <summary>
+    /// 推进游戏时间 分
+    /// </summary>
+    public static event Action<int, Season, int, string, int, int, int> AdvanceGameMinuteEvent;
+
+    /// <summary>
+    /// 发布推进游戏时间事件 分钟
+    /// </summary>
+    /// <param name="gameYear"></param>
+    /// <param name="gameSeason"></param>
+    /// <param name="gameDay"></param>
+    /// <param name="gameDayOfWeek"></param>
+    /// <param name="gameHour"></param>
+    /// <param name="gameMinute"></param>
+    /// <param name="gameSecond"></param>
+    public static void CallAdvanceGameMinuteEvent(int gameYear, Season gameSeason,int gameDay, string gameDayOfWeek, 
+        int gameHour, int gameMinute, int gameSecond)
+    {
+        if (AdvanceGameMinuteEvent != null)
+        {
+            AdvanceGameMinuteEvent(gameYear, gameSeason, gameDay, gameDayOfWeek, gameHour, gameMinute, gameSecond);
+        }
+    }
+    /// <summary>
+    /// 推进游戏时间 小时
+    /// </summary>
+    public static event Action<int,Season,int,string,int,int,int> AdvanceGameHourEvent;
+    /// <summary>
+    /// 发布推进游戏时间事件  小时
+    /// </summary>
+    /// <param name="gameYear"></param>
+    /// <param name="gameSeason"></param>
+    /// <param name="gameDay"></param>
+    /// <param name="gameDayOfWeek"></param>
+    /// <param name="gameHour"></param>
+    /// <param name="gameMinute"></param>
+    /// <param name="gameSecond"></param>
+    public static void CallAdvanceGameHourEvent(int gameYear, Season gameSeason, int gameDay, string gameDayOfWeek,
+        int gameHour, int gameMinute, int gameSecond)
+    {
+        if (AdvanceGameHourEvent != null)
+        {
+            AdvanceGameHourEvent(gameYear,gameSeason, gameDay, gameDayOfWeek,gameHour, gameMinute, gameSecond);
+        }
+    }
+
+    /// <summary>
+    /// 推进游戏时间事件 天
+    /// </summary>
+    public static event Action<int, Season, int, string, int, int, int> AdvanceGameDayEvent;
+    /// <summary>
+    /// 发布推进游戏时间事件 天
+    /// </summary>
+    /// <param name="gameYear"></param>
+    /// <param name="gameSeason"></param>
+    /// <param name="gameDay"></param>
+    /// <param name="gameDayOfWeek"></param>
+    /// <param name="gameHour"></param>
+    /// <param name="gameMinute"></param>
+    /// <param name="gameSecond"></param>
+    public static void CallAdvanceGameDayEvent(int gameYear, Season gameSeason, int gameDay, string gameDayOfWeek,
+        int gameHour, int gameMinute, int gameSecond)
+    {
+        if(AdvanceGameDayEvent != null)
+        {
+            AdvanceGameDayEvent(gameYear,gameSeason,gameDay, gameDayOfWeek, gameHour, gameMinute,gameSecond);
+        }
+    }
+
+    public static event Action<int, Season, int, string, int, int, int> AdvanceGameSeasonEvent;
+
+    public static void CallAdvanceGameSeasonEvent(int gameYear, Season gameSeason, int gameDay, string gameDayOfWeek,
+        int gameHour, int gameMinute, int gameSecond)
+    {
+        if(AdvanceGameSeasonEvent != null)
+        {
+            AdvanceGameSeasonEvent(gameYear, gameSeason, gameDay, gameDayOfWeek, gameHour, gameMinute, gameSecond);
+        }
+    }
+
+    public static event Action<int, Season, int, string, int, int, int> AdvanceGameYearEvent;
+
+    public static void CallAdvanceGameYearEvent(int gameYear, Season gameSeason, int gameDay, string gameDayOfWeek,
+        int gameHour, int gameMinute, int gameSecond)
+    {
+        if (AdvanceGameYearEvent != null)
+        {
+            AdvanceGameYearEvent(gameYear, gameSeason, gameDay, gameDayOfWeek, gameHour, gameMinute, gameSecond);
+        }
+    }
+
+    #endregion
 }

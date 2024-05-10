@@ -118,6 +118,9 @@ public class Player : SingletonMonoBehvior<Player>
             //检测步行/跑步输入
             PlayerWalkInput();
 
+            //TODO: 测试时间管理的
+            //PlayerTestInput();
+
             //将玩家行为事件发送给监听者
             EventHandler.CallMovementEvent(xInput, yInput, isWalking, isRunning, isIdle, isCarrying,
                 toolEffect,
@@ -251,6 +254,9 @@ public class Player : SingletonMonoBehvior<Player>
         toolEffect = ToolEffect.none;
     }
 
+    /// <summary>
+    /// 禁用角色输入并重置移动事件
+    /// </summary>
     public void DisablePlayerInputAndResetMovement()
     {
         //禁用角色输入，即角色暂时无法移动
@@ -265,6 +271,22 @@ public class Player : SingletonMonoBehvior<Player>
             isSwingingToolRight, isSwingingToolLeft, isSwingingToolUp, isSwingingToolDown,
             false, false, false, false);
     }
+
+    // TODO: REMOVE
+    /*private void PlayerTestInput()
+    {
+        if(Input.GetKeyDown(KeyCode.T))
+        {
+            //按分钟推进时间
+            TimeManager.Instance.TestAdvanceGameMinute();
+        }
+
+        if(Input.GetKeyDown(KeyCode.G)) 
+        { 
+            //按天推进时间
+            TimeManager.Instance.TestAdvanceGameDay();
+        }
+    }*/
 
     /// <summary>
     /// 重置角色移动信息
@@ -294,6 +316,10 @@ public class Player : SingletonMonoBehvior<Player>
         PlayerInputIsDisabled = false;
     }
 
+    /// <summary>
+    /// 将世界坐标转换为屏幕区域坐标
+    /// </summary>
+    /// <returns></returns>
     public Vector3 GetPlayerViewportPosition()
     {
         //将世界坐标转换为视口坐标的方法。视口坐标是相对于相机视图的归一化坐标系，

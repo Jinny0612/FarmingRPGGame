@@ -30,6 +30,7 @@ public static class Settings
     public static int playerMaximumInventoryCapacity = 48;
     #endregion
 
+    #region 玩家动画参数，名称与unity中设置的动画参数相同
     //与player动画器中的参数名相同
     //玩家动画参数
     public static int yInput;
@@ -64,14 +65,23 @@ public static class Settings
     public static int idleLeft;
     public static int idleRight;
 
+    #endregion
 
-    //工具描述
+    #region 工具描述
     public const string HoeingTool = "Hoe";
     public const string ChoppingTool = "Axe";
     public const string BreakingTool = "Pickaxe";
     public const string ReapingTool = "Scythe";
     public const string WateringTool = "Watering Can";
     public const string CollectingTool = "Basket";
+    #endregion
+
+    #region 时间系统
+    /// <summary>
+    /// 单位游戏时间的现实秒数  大约每经过现实时间 0.7s 就过去 1 分钟游戏时间
+    /// </summary>
+    public const float secondsPerGameSecond = 0.012f;
+    #endregion
 
 
     static Settings()
