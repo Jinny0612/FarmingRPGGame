@@ -185,4 +185,72 @@ public static class EventHandler
     }
 
     #endregion
+
+
+    #region 游戏场景切换事件
+
+    /// <summary>
+    /// 在场景卸载淡出之前的事件事件
+    /// </summary>
+    public static event Action BeforeSceneUnloadFadeOutEvent;
+
+    /// <summary>
+    /// 发布场景卸载淡出事件
+    /// </summary>
+    public static void CallBeforeSceneUnloadFadeOutEvent()
+    {
+        if(BeforeSceneUnloadFadeOutEvent != null)
+        {
+            BeforeSceneUnloadFadeOutEvent();
+        }
+    }
+
+    /// <summary>
+    /// 在场景卸载前的事件
+    /// </summary>
+    public static event Action BeforeSceneUnloadEvent;
+
+    /// <summary>
+    /// 发布场景卸载前事件
+    /// </summary>
+    public static void CallBeforeSceneUnoladEvent()
+    {
+        if(BeforeSceneUnloadEvent != null){
+            BeforeSceneUnloadEvent();
+        }
+    }
+
+    /// <summary>
+    /// 场景加载后的事件
+    /// </summary>
+    public static event Action AfterSceneLoadEvent;
+
+    /// <summary>
+    /// 发布场景加载后的事件
+    /// </summary>
+    public static void CallAfterSceneLoadEvent()
+    {
+        if(AfterSceneLoadEvent != null)
+        {
+            AfterSceneLoadEvent();
+        }
+    }
+
+    /// <summary>
+    /// 场景加载显示后的事件
+    /// </summary>
+    public static event Action AfterSceneLoadFadeInEvent;
+
+    /// <summary>
+    /// 发布场景加载显示后的事件
+    /// </summary>
+    public static void CallAfterSceneLoadFadeInEvent()
+    {
+        if( AfterSceneLoadFadeInEvent != null)
+        {
+            AfterSceneLoadFadeInEvent();
+        }
+    }
+
+    #endregion
 }

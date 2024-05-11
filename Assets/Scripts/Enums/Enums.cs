@@ -156,3 +156,13 @@ public enum Season
     count
 }
 
+/// <summary>
+/// ÓÎÏ·³¡¾°Ãû³Æ
+/// </summary>
+public enum SceneName
+{
+    Scene1_Farm,
+    Scene2_Field,
+    Scene3_Cabin
+}
+

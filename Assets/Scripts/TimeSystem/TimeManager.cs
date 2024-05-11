@@ -173,9 +173,9 @@ public class TimeManager : SingletonMonoBehvior<TimeManager>
     }
 
     //测试时间变化的两个测试方法
-   /* public void TestAdvanceGameMinute()
+    public void TestAdvanceGameMinute()
     {
-        for(int i=0; i < 60; i++)
+        for (int i = 0; i < 60; i++)
         {
             UpdateGameSecond();
         }
@@ -183,9 +183,9 @@ public class TimeManager : SingletonMonoBehvior<TimeManager>
 
     public void TestAdvanceGameDay()
     {
-        for(int i = 0; i < 86400; i++)
+        for (int i = 0; i < 86400; i++)
         {
             UpdateGameSecond();
         }
-    }*/
+    }
 }

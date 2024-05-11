@@ -1,5 +1,17 @@
 # FarmingRPGGame
  A farming RPG 
+
+ <H1>2024.5.10</H1>
+
+ 实现场景切换管理：
+
+ player所在的持久化场景一直存在无需卸载，其他场景需要进行加载和卸载。
+
+ 所有在需要加载卸载场景中存在的游戏物体，获取时都需要在场景加载完成后再加载，因此使用到这些物体的挂载在游戏物体上的脚本，都需要订阅场景加载卸载事件以便于获取需要的游戏物体。
+
+ ![场景管理图1](READMEIMAGE/SceneControllerManager01.PNG)
+
+  ![场景管理图2](READMEIMAGE/SceneControllerManager02.PNG)
  
   <H1>2024.5.10</H1>
 

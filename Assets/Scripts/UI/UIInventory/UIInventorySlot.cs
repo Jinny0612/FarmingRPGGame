@@ -66,11 +66,22 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
         parentCanvas = GetComponentInParent<Canvas>();
     }
 
+    private void OnEnable()
+    {
+        //订阅场景加载后的事件
+        EventHandler.AfterSceneLoadEvent += SceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        EventHandler.AfterSceneLoadEvent -= SceneLoaded;
+    }
+
     private void Start()
     {
         mainCamera = Camera.main;
         //父物品位置
-        parentItem = GameObject.FindGameObjectWithTag(Tags.ItemParentTransform).transform;
+        //parentItem = GameObject.FindGameObjectWithTag(Tags.ItemParentTransform).transform;
     }
 
     /// <summary>
@@ -303,5 +314,12 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
 
         //取消显示手中的物品
         Player.Instance.ClearCarriedItem();
+    }
+
+    public void SceneLoaded()
+    {
+        //因为场景切换时，Tags.ItemParentTransform的物体在Scene1_Farm场景中，
+        //不一定一直都存在，所以需要在场景加载完成后再获取
+        parentItem = GameObject.FindGameObjectWithTag(Tags.ItemParentTransform).transform;
     }
 }

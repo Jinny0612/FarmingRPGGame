@@ -119,7 +119,7 @@ public class Player : SingletonMonoBehvior<Player>
             PlayerWalkInput();
 
             //TODO: 测试时间管理的
-            //PlayerTestInput();
+            PlayerTestInput();
 
             //将玩家行为事件发送给监听者
             EventHandler.CallMovementEvent(xInput, yInput, isWalking, isRunning, isIdle, isCarrying,
@@ -273,20 +273,26 @@ public class Player : SingletonMonoBehvior<Player>
     }
 
     // TODO: REMOVE
-    /*private void PlayerTestInput()
+    private void PlayerTestInput()
     {
-        if(Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKey(KeyCode.T))
         {
             //按分钟推进时间
             TimeManager.Instance.TestAdvanceGameMinute();
         }
 
-        if(Input.GetKeyDown(KeyCode.G)) 
-        { 
+        if (Input.GetKeyDown(KeyCode.G))
+        {
             //按天推进时间
             TimeManager.Instance.TestAdvanceGameDay();
         }
-    }*/
+
+        //测试场景加载
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            SceneControllerManager.Instance.FadeAndLoadScene(SceneName.Scene1_Farm.ToString(),transform.position);
+        }
+    }
 
     /// <summary>
     /// 重置角色移动信息

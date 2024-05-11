@@ -5,10 +5,15 @@ using System;
 
 public class SwitchConfineBoundingShape : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
-        SwitchBoundingShape();
+        //必须在场景加载完成后再加载
+        EventHandler.AfterSceneLoadEvent += SwitchBoundingShape;
+    }
+
+    private void OnDisable()
+    {
+        EventHandler.AfterSceneLoadEvent -= SwitchBoundingShape;
     }
 
     /// <summary>
@@ -17,6 +22,7 @@ public class SwitchConfineBoundingShape : MonoBehaviour
     private void SwitchBoundingShape()
     {
         //获取标签为"BoundsConfiner"的添加了多边形碰撞器组件的游戏对象，避免相机超出屏幕边缘
+        //在场景Scene1_Farm中，需要等待场景加载完成后才能获取
         PolygonCollider2D polygonCollider2D = GameObject.FindGameObjectWithTag(Tags.BoundsConfiner).GetComponent<PolygonCollider2D>();
         CinemachineConfiner cinemachineConfiner = GetComponent<CinemachineConfiner>();
         //设置边界形状为BoundsConfinder标签对应游戏物体设定的形状
