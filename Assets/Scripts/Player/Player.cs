@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Search;
 using UnityEngine;
@@ -65,6 +66,26 @@ public class Player : SingletonMonoBehvior<Player>
     private CharacterAttribute toolCharacterAttribute;
     #endregion
 
+
+    /// <summary>
+    /// 网格光标
+    /// </summary>
+    private GridCursor gridCursor;
+
+    /// <summary>
+    /// 禁用角色使用工具
+    /// </summary>
+    private bool playerToolUseDisabled = false;
+
+    /// <summary>
+    /// 使用工具后暂停
+    /// </summary>
+    private WaitForSeconds afterUseToolAnimationPause;
+    /// <summary>
+    /// 使用工具时暂停
+    /// </summary>
+    private WaitForSeconds useToolAnimationPause;
+
     /// <summary>
     /// 主相机
     /// </summary>
@@ -102,9 +123,16 @@ public class Player : SingletonMonoBehvior<Player>
         mainCamera = Camera.main;
     }
 
+    private void Start()
+    {
+        gridCursor = FindObjectOfType<GridCursor>();
+        useToolAnimationPause = new WaitForSeconds(Settings.useToolAnimationPause);
+        afterUseToolAnimationPause = new WaitForSeconds(Settings.afterUseToolAnimationPause);
+    }
+
     private void Update()
     {
-        //玩家输入违禁用，玩家可以移动
+        //玩家输入未禁用，玩家可以移动
         if(!PlayerInputIsDisabled)
         {
             #region 玩家输入
@@ -121,6 +149,8 @@ public class Player : SingletonMonoBehvior<Player>
             //TODO: 测试时间管理的
             PlayerTestInput();
 
+            PlayerClickInput();
+
             //将玩家行为事件发送给监听者
             EventHandler.CallMovementEvent(xInput, yInput, isWalking, isRunning, isIdle, isCarrying,
                 toolEffect,
@@ -133,6 +163,7 @@ public class Player : SingletonMonoBehvior<Player>
 
             #endregion
         }
+        
 
 
     }
@@ -174,6 +205,214 @@ public class Player : SingletonMonoBehvior<Player>
             isWalking = false;
             isIdle = false;
             movementSpeed = Settings.runningSpeed;
+        }
+    }
+
+    /// <summary>
+    /// 玩家左键点击输入
+    /// </summary>
+    private void PlayerClickInput()
+    {
+        if (!playerToolUseDisabled)
+        {
+            //PayerToolUseDisabled == false，即角色可以使用工具
+
+            if (Input.GetMouseButton(0))
+            {
+                if (gridCursor.CursorIsEnabled)
+                {
+                    //获取光标和角色的坐标
+                    Vector3Int cursorGridPosition = gridCursor.GetGridPositionForCursor();
+                    Vector3Int playerGridPosition = gridCursor.GetGridPositionForPlayer();
+
+                    ProcessPlayerClickInput(cursorGridPosition,playerGridPosition);
+                }
+            }
+        }
+        
+    }
+
+    /// <summary>
+    /// 执行玩家左键点击
+    /// </summary>
+    private void ProcessPlayerClickInput(Vector3Int cursorGridPosition, Vector3Int playerGridPosition)
+    {
+        //重置移动相关属性，避免扔物品时角色移动了
+        ResetMovement();
+
+        //获取角色方向
+        Vector3Int playerDirection = GetPlayerClickDirection(cursorGridPosition, playerGridPosition);
+        //获取光标位置网格的属性详情
+        GridPropertyDetails gridPropertyDetails = GridPropertiesManager.Instance.GetGridPropertyDetails(cursorGridPosition.x, cursorGridPosition.y);
+
+        ItemDetails itemDetails = InventoryManager.Instance.GetSelectedInventoryItemDetails(InventoryLocation.player);
+
+        if (itemDetails != null)
+        {
+            switch(itemDetails.itemType)
+            {
+                case ItemType.Seed:
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        ProcessPlayerClickInputSeed(itemDetails);
+                    }
+                    break;
+
+                case ItemType.Commodity:
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        ProcessPlayerClickInputCommodity(itemDetails);
+                    }
+                    break;
+
+                case ItemType.Hoeing_tool:
+                    ProcessPlayerClickInputTool(gridPropertyDetails, itemDetails, playerDirection);
+                    break;
+
+                case ItemType.none:
+                    break;
+                case ItemType.count:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// 当角色点击使用工具时的处理逻辑
+    /// </summary>
+    /// <param name="gridPropertyDetails"></param>
+    /// <param name="itemDetails"></param>
+    /// <param name="playerDirection"></param>
+    private void ProcessPlayerClickInputTool(GridPropertyDetails gridPropertyDetails, ItemDetails itemDetails, Vector3Int playerDirection)
+    {
+        switch (itemDetails.itemType)
+        {
+            case ItemType.Hoeing_tool:
+                if(gridCursor.CursorPositionIsValid)
+                {
+                    //在当前光标处锄地
+                    HoeGroundAtCursor(gridPropertyDetails, playerDirection);
+                }
+                break;
+            default : break;
+        }
+    }
+
+    /// <summary>
+    /// 在光标处锄地
+    /// </summary>
+    /// <param name="gridPropertyDetails"></param>
+    /// <param name="playerDirection"></param>
+    private void HoeGroundAtCursor(GridPropertyDetails gridPropertyDetails, Vector3Int playerDirection)
+    {
+        //触发动画
+        StartCoroutine(HoeGroundAtCursorRoutine(playerDirection, gridPropertyDetails));
+    }
+
+    /// <summary>
+    /// 触底动画触发
+    /// </summary>
+    /// <param name="playerDirection"></param>
+    /// <param name="gridPropertyDetails"></param>
+    /// <returns></returns>
+    private IEnumerator HoeGroundAtCursorRoutine(Vector3Int playerDirection, GridPropertyDetails gridPropertyDetails)
+    {
+        //触发动画前禁止角色移动和切换使用别的工具
+        PlayerInputIsDisabled = true;
+        playerToolUseDisabled = true;
+
+        //设置动态替换锄地动画剪辑
+        toolCharacterAttribute.partVariantType = PartVariantType.hoe;
+        characterAttributeCustomissationList.Clear();//清空
+        characterAttributeCustomissationList.Add(toolCharacterAttribute);
+        animationOverrides.ApplyCharacterCustomisationParameters(characterAttributeCustomissationList);
+
+        //判断动画方向
+        if(playerDirection == Vector3Int.right)
+        {
+            isUsingToolRight = true;
+        }
+        else if(playerDirection == Vector3Int.left)
+        {
+            isUsingToolLeft = true;
+        }
+        else if(playerDirection == Vector3Int.up)
+        {
+            isUsingToolUp = true;
+        }
+        else if(playerDirection == Vector3Int.down)
+        {
+            isUsingToolDown = true;
+        }
+        //使用工具时暂停
+        yield return useToolAnimationPause;
+
+        //更改网格属性中的挖掘信息
+        if(gridPropertyDetails.daysSinceDug == -1)
+        {
+            //从未挖掘过 改为 距离被挖掘0天即今天被挖掘
+            gridPropertyDetails.daysSinceDug = 0;
+        }
+        GridPropertiesManager.Instance.SetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY, gridPropertyDetails);
+        //挖掘后暂停  放置动画触发得太快了
+        yield return afterUseToolAnimationPause;
+
+        //动画完全结束，解除对角色移动和使用工具的禁止
+        PlayerInputIsDisabled = false;
+        playerToolUseDisabled = false;
+    }
+
+    /// <summary>
+    /// 对比光标和角色位置来判断方向
+    /// </summary>
+    /// <param name="cursorGridPosition"></param>
+    /// <param name="playerGridPosition"></param>
+    /// <returns></returns>
+    private Vector3Int GetPlayerClickDirection(Vector3Int cursorGridPosition, Vector3Int playerGridPosition)
+    {
+        if(cursorGridPosition.x > playerGridPosition.x)
+        {
+            //光标在角色右边
+            return Vector3Int.right;
+        }
+        else if(cursorGridPosition.x < playerGridPosition.x)
+        {
+            return Vector3Int.left;
+        }
+        else if(cursorGridPosition.y > playerGridPosition.y)
+        {
+            return Vector3Int.up;
+        }
+        else
+        {
+            return Vector3Int.down;
+        }
+    }
+
+    /// <summary>
+    /// 执行玩家点击商品类物品事件
+    /// </summary>
+    /// <param name="itemDetails"></param>
+    private void ProcessPlayerClickInputCommodity(ItemDetails itemDetails)
+    {
+        if(itemDetails.canBeDropped && gridCursor.CursorPositionIsValid)
+        {
+            EventHandler.CallDropSelectedItemEvent();
+        }
+    }
+
+    /// <summary>
+    /// 执行玩家点击种子类物品事件
+    /// </summary>
+    /// <param name="itemDetails"></param>
+    private void ProcessPlayerClickInputSeed(ItemDetails itemDetails)
+    {
+        if(itemDetails.canBeDropped && gridCursor.CursorPositionIsValid)
+        {
+            EventHandler.CallDropSelectedItemEvent();
         }
     }
 

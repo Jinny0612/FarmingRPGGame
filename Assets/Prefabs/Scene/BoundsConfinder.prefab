@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5661489300020632464}
   m_Layer: 2
   m_Name: BoundsConfinder
-  m_TagString: BoundsConfinder
+  m_TagString: BoundsConfiner
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61,7 +61,7 @@ PolygonCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -76,8 +76,8 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 40.9809, y: 30.98124}
-      - {x: -39.995792, y: 30.992863}
-      - {x: -39.996254, y: -29.987795}
-      - {x: 41.003254, y: -29.99507}
+    - - {x: 40, y: 30}
+      - {x: -40, y: 30}
+      - {x: -40, y: -29}
+      - {x: 40, y: -29}
   m_UseDelaunayMesh: 0

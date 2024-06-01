@@ -29,6 +29,10 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     /// 被拖拽的物体
     /// </summary>
     private GameObject draggedItem;
+    /// <summary>
+    /// 网格光标
+    /// </summary>
+    private GridCursor gridCursor;
 
     /// <summary>
     /// 槽位的边框
@@ -43,8 +47,17 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     /// </summary>
     public TextMeshProUGUI textMeshProUGUI;
 
+    /// <summary>
+    /// 背包工具栏
+    /// </summary>
     [SerializeField] private UIInventoryBar inventoryBar = null;
+    /// <summary>
+    /// 物品预制体
+    /// </summary>
     [SerializeField] private GameObject itemPerfab = null;
+    /// <summary>
+    /// 插槽编号
+    /// </summary>
     [SerializeField] private int slotNumber = 0;
     [SerializeField] private GameObject inventoryTextBoxPerfab = null;
 
@@ -70,18 +83,31 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     {
         //订阅场景加载后的事件
         EventHandler.AfterSceneLoadEvent += SceneLoaded;
+        //订阅扔下选中物品事件
+        EventHandler.DropSelectedItemEvent += DropSelectedItemAtMousePosition;
     }
 
     private void OnDisable()
     {
         EventHandler.AfterSceneLoadEvent -= SceneLoaded;
+        EventHandler.DropSelectedItemEvent -= DropSelectedItemAtMousePosition;
     }
 
     private void Start()
     {
         mainCamera = Camera.main;
+        gridCursor = FindObjectOfType<GridCursor>();
         //父物品位置
         //parentItem = GameObject.FindGameObjectWithTag(Tags.ItemParentTransform).transform;
+    }
+
+    /// <summary>
+    /// 清空网格光标
+    /// </summary>
+    private void ClearCursors()
+    {
+        gridCursor.DisableCursor();
+        gridCursor.SelectedItemType = ItemType.none;
     }
 
     /// <summary>
@@ -173,22 +199,35 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     {
         if(itemDetails != null && isSelected)
         {
-            //这里将坐标转换为世界坐标，否则后面实例化预制体会导致位置错误，不在相机范围内显示
-            Vector3 worldPosition = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -mainCamera.transform.position.z));
+           
 
-            //从预制体中实例化一个物体到鼠标当前位置
-            GameObject itemGameObject = Instantiate(itemPerfab, worldPosition, Quaternion.identity, parentItem);
-            Item item = itemGameObject.GetComponent<Item>();
-            item.ItemCode = itemDetails.itemCode;
-
-            //从库存中移除物品
-            InventoryManager.Instance.RemoveItem(InventoryLocation.player,item.ItemCode);
-
-            //如果物品不存在，清除选中框
-            if(InventoryManager.Instance.FindItemInInventory(InventoryLocation.player,item.ItemCode) == -1)
+            //将世界坐标转换为网格坐标，需要判断网格坐标是否允许放置物品
+            //Vector3Int gridPosition = GridPropertiesManager.Instance.grid.WorldToCell(worldPosition);
+            //GridPropertyDetails gridPropertyDetails = GridPropertiesManager.Instance.GetGridPropertyDetails(gridPosition.x, gridPosition.y);
+           
+            
+            //判断当前位置是否可以放置物品
+            if (gridCursor.CursorPositionIsValid/*gridPropertyDetails != null && gridPropertyDetails.canDropItem*/)
             {
-                ClearSelectedItem();
+                //这里将坐标转换为世界坐标，否则后面实例化预制体会导致位置错误，不在相机范围内显示
+                Vector3 worldPosition = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -mainCamera.transform.position.z));
+                Debug.Log("itemX = " + worldPosition.x + "  itemY = " + worldPosition.y);
+                //从预制体中实例化一个物体到鼠标当前位置
+                GameObject itemGameObject = Instantiate(itemPerfab, new Vector3(worldPosition.x, worldPosition.y - Settings.gridCellSize/2f, worldPosition.z), Quaternion.identity, parentItem);
+                Item item = itemGameObject.GetComponent<Item>();
+                item.ItemCode = itemDetails.itemCode;
+
+                //从库存中移除物品
+                InventoryManager.Instance.RemoveItem(InventoryLocation.player, item.ItemCode);
+
+                //如果物品不存在，清除选中框
+                if (InventoryManager.Instance.FindItemInInventory(InventoryLocation.player, item.ItemCode) == -1)
+                {
+                    ClearSelectedItem();
+                }
             }
+
+            
         }
     }
 
@@ -285,6 +324,21 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
         //被选中，展示高亮框
         isSelected = true;
         inventoryBar.SetHighlightedInventorySlots();
+
+        //设置网格光标半径
+        gridCursor.ItemUserGridRadius = itemDetails.itemUseGridRadius;
+        //物品使用网格半径》0时显示光标
+        if(itemDetails.itemUseGridRadius > 0)
+        {
+            gridCursor.EnableCursor();
+        }
+        else
+        {
+            gridCursor.DisableCursor();
+        }
+        //设置被选中物品的类型
+        gridCursor.SelectedItemType = itemDetails.itemType;
+
         //设置被选中的物品
         InventoryManager.Instance.SetSelectedInventoryItem(InventoryLocation.player, itemDetails.itemCode);
 
@@ -306,6 +360,9 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     /// </summary>
     private void ClearSelectedItem()
     {
+        //清除网格光标
+        ClearCursors();
+
         //清除插槽的高亮框
         inventoryBar.ClearHighlightOnInventorySlots();
         isSelected = false;

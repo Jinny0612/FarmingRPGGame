@@ -48,6 +48,17 @@ public delegate void MovementDelegate(float inputx, float inputy, bool isWalking
 public static class EventHandler
 {
 
+    //放置选中物品事件
+    public static event Action DropSelectedItemEvent;
+    //发布放置物品事件
+    public static void CallDropSelectedItemEvent()
+    {
+        if (DropSelectedItemEvent != null)
+        {
+            DropSelectedItemEvent();
+        }
+    }
+
     //库存更新事件
     public static event Action<InventoryLocation, List<InventoryItem>> InventoryUpdatedEvent;
 

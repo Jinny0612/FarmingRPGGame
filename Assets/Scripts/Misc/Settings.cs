@@ -17,6 +17,7 @@ public static class Settings
     # region 玩家移动参数
     public const float runningSpeed = 8f;//5.333f;
     public const float walkingSpeed = 4f;//2.666f;
+    
     #endregion
 
     #region 库存相关
@@ -81,8 +82,29 @@ public static class Settings
     /// 单位游戏时间的现实秒数  大约每经过现实时间 0.7s 就过去 1 分钟游戏时间
     /// </summary>
     public const float secondsPerGameSecond = 0.012f;
+    /// <summary>
+    /// 使用工具时暂停的时间
+    /// </summary>
+    public static float useToolAnimationPause = 0.25f;
+    /// <summary>
+    /// 使用工具后暂停的时间
+    /// </summary>
+    public static float afterUseToolAnimationPause = 0.2f;
+
     #endregion
 
+    #region tilemap
+
+    /// <summary>
+    /// 网格单元大小  1单位
+    /// </summary>
+    public const float gridCellSize = 1f;
+    /// <summary>
+    /// 光标大小
+    /// </summary>
+    public static Vector2 cursorSize = Vector2.one;
+
+    #endregion
 
     static Settings()
     {

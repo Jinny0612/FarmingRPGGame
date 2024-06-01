@@ -10,6 +10,10 @@ using UnityEngine;
 public class ItemDetails
 {
     /// <summary>
+    /// 物品描述（名称）
+    /// </summary>
+    public string itemDescription;//这个字段放在第一位，那么unity中可视窗口会直接显示物体描述而非element 0
+    /// <summary>
     /// 物品代码
     /// </summary>
     public int itemCode;
@@ -17,10 +21,7 @@ public class ItemDetails
     /// 物品类型
     /// </summary>
     public ItemType itemType;
-    /// <summary>
-    /// 物品描述（名称）
-    /// </summary>
-    public string itemDescription;
+    
     /// <summary>
     /// 物品图片
     /// </summary>
@@ -30,7 +31,7 @@ public class ItemDetails
     /// </summary>
     public string itemLongDescription;
     /// <summary>
-    /// 物品使用范围 基于网格
+    /// 物品使用范围 基于网格  网格光标的半径
     /// </summary>
     public short itemUseGridRadius;
     /// <summary>

@@ -166,3 +166,30 @@ public enum SceneName
     Scene3_Cabin
 }
 
+/// <summary>
+/// 地图网格bool属性
+/// </summary>
+public enum GridBoolProperty
+{
+    /// <summary>
+    /// 可挖掘
+    /// </summary>
+    diggable,
+    /// <summary>
+    /// 可以放置物品
+    /// </summary>
+    canDropItem,
+    /// <summary>
+    /// 可以放置家具
+    /// </summary>
+    canPlaceFurniture,
+    /// <summary>
+    /// 路径
+    /// </summary>
+    isPath,
+    /// <summary>
+    /// npc障碍
+    /// </summary>
+    isNPCObstacle
+}
+

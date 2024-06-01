@@ -137,8 +137,8 @@ public class TimeManager : SingletonMonoBehvior<TimeManager>
             }
             //发布分钟更新事件
             EventHandler.CallAdvanceGameMinuteEvent(gameYear, gameSeason, gameDay, gameDayOfWeek, gameHour, gameMinute, gameSecond);
-            Debug.Log("Game Year: " + gameYear + "  Game Season: " + gameSeason + " Game Day: " + gameDay + 
-                " Game Hour: " + gameHour + " Game Minute: " + gameMinute);
+            //Debug.Log("Game Year: " + gameYear + "  Game Season: " + gameSeason + " Game Day: " + gameDay + 
+              //  " Game Hour: " + gameHour + " Game Minute: " + gameMinute);
         }
     }
 

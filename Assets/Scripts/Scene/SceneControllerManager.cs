@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// 场景控制管理
+/// </summary>
 public class SceneControllerManager : SingletonMonoBehvior<SceneControllerManager>
 {
     /// <summary>
@@ -14,7 +17,7 @@ public class SceneControllerManager : SingletonMonoBehvior<SceneControllerManage
     /// <summary>
     /// 淡入淡出的时间
     /// </summary>
-    [SerializeField] private float fadeDuration = 1f;
+    [SerializeField] private float fadeDuration = 0.5f;
     /// <summary>
     /// canvasgroup组件
     /// </summary>
@@ -27,16 +30,38 @@ public class SceneControllerManager : SingletonMonoBehvior<SceneControllerManage
     /// 初始场景名称
     /// </summary>
     public SceneName startingSceneNmae;
+    /// <summary>
+    /// 非初始场景列表
+    /// </summary>
+    [SerializeField] private List<SceneName> listNonStartingSceneName = new List<SceneName>();
 
     private IEnumerator Start()
     {
         //重置loading黑屏场景参数
         faderImage.color = new Color(0f, 0f, 0f, 1f);
         faderCanvasGrooup.alpha = 1f;
+
+        //预加载所有其他非启动场景，确保其他场景所有起始的裁切预制件都能被正确加载
+        //提升游戏的流畅性，避免加载场景时产生不必要的卡顿
+        foreach (SceneName sceneName in listNonStartingSceneName)
+        {
+            //等待场景加载完成
+            yield return StartCoroutine(LoadSceneAndSetActive(sceneName.ToString()));
+            //发布场景加载时间
+            EventHandler.CallAfterSceneLoadEvent();
+            //恢复并重新存储场景信息
+            SaveLoadManager.Instance.RestoreCurrentSceneData();
+            SaveLoadManager.Instance.StoreCurrentSceneData();
+            //异步卸载场景
+            yield return SceneManager.UnloadSceneAsync(sceneName.ToString());
+        }
+
         //等待初始场景加载完成
         yield return StartCoroutine(LoadSceneAndSetActive(startingSceneNmae.ToString()));
         //发布场景加载事件
         EventHandler.CallAfterSceneLoadEvent();
+        //恢复初始场景数据
+        SaveLoadManager.Instance.RestoreCurrentSceneData();
         //黑屏渐浅
         StartCoroutine(Fade(0f));
     }
@@ -66,8 +91,15 @@ public class SceneControllerManager : SingletonMonoBehvior<SceneControllerManage
         #region 卸载场景
         //发布场景淡出前的事件
         EventHandler.CallBeforeSceneUnloadFadeOutEvent();
+        //禁用玩家输入，无法移动
+        Player.Instance.DisablePlayerInputAndResetMovement();
+
         //loading逐渐黑屏
         yield return StartCoroutine(Fade(1f));
+
+        //存储当前场景数据
+        SaveLoadManager.Instance.StoreCurrentSceneData();
+
         //设置玩家的位置
         Player.Instance.gameObject.transform.position = spawnPosition;
         
@@ -82,10 +114,16 @@ public class SceneControllerManager : SingletonMonoBehvior<SceneControllerManage
         yield return StartCoroutine(LoadSceneAndSetActive(sceneName));
         //发布场景加载事件
         EventHandler.CallAfterSceneLoadEvent();
+
+        //恢复新场景的数据
+        SaveLoadManager.Instance.RestoreCurrentSceneData();
+
         //loading逐渐亮屏
         yield return StartCoroutine(Fade(0f));
         //发布场景加载淡入事件
         EventHandler.CallAfterSceneLoadFadeInEvent();
+        //开启玩家输入，可以移动
+        Player.Instance.EnablePlayerInput();
         #endregion
     }
 

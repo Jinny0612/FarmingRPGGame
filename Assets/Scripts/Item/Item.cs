@@ -32,7 +32,7 @@ public class Item : MonoBehaviour
     }
 
     //根据设定的物品代码初始化物品信息
-    private void Init(int itemCodeParam)
+    public void Init(int itemCodeParam)
     {
         if (ItemCode != 0)
         {

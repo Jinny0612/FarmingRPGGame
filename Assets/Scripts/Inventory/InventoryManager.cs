@@ -9,7 +9,7 @@ using static UnityEditor.Progress;
 /// 库存管理
 /// 单例
 /// </summary>
-public class InventoryManager : SingletonMonoBehvior<InventoryManager>
+public class InventoryManager : SingletonMonoBehvior<InventoryManager> //, ISaveable
 {
     /// <summary>
     /// 详情字典
@@ -22,12 +22,18 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
     /// value：itemcode
     /// </summary>
     private int[] selectedInventoryItem;
+    /// <summary>
+    /// 角色背包工具栏
+    /// </summary>
+    private UIInventoryBar inventoryBar;
 
     /// <summary>
     /// 库存列表
     /// 数组每个元素都是一个list
     /// </summary>
     public List<InventoryItem>[] inventoryLists;
+
+    //public Dictionary<int, InventoryItem>[] inventoryDictionaries;
 
     /// <summary>
     /// 不同库存类型的容量
@@ -40,6 +46,11 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
     /// </summary>
     [SerializeField]
     private SO_ItemList itemList = null;
+
+    /*private string _iSaveableUniqueID;
+    public string ISaveableUniqueId { get => _iSaveableUniqueID; set => _iSaveableUniqueID = value; }
+    private GameObjectSave _gameObjectSave;
+    public GameObjectSave GameObjectSave { get => _gameObjectSave; set => _gameObjectSave = value; }*/
 
     protected override void Awake()
     {
@@ -56,6 +67,25 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
         {
             selectedInventoryItem[i] = -1;
         }
+
+        //获取uid
+        /*ISaveableUniqueId = GetComponent<GenerateGUID>().GUID;
+        GameObjectSave = new GameObjectSave();*/
+    }
+
+    private void OnEnable()
+    {
+        ISaveableRegister();
+    }
+
+    private void OnDisable()
+    {
+        ISaveableDeregister();
+    }
+
+    private void Start()
+    {
+        inventoryBar = FindObjectOfType<UIInventoryBar>();
     }
 
     /// <summary>
@@ -65,15 +95,18 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
     {
         inventoryLists = new List<InventoryItem>[(int)InventoryLocation.count];
 
-        for(int i = 0; i < (int)InventoryLocation.count; i++)
+        for (int i = 0; i < (int)InventoryLocation.count; i++)
         {
             inventoryLists[i] = new List<InventoryItem>();
         }
 
+        //初始化不同库存类型的大小
         inventoryListCapacityIntArry = new int[(int)InventoryLocation.count];
 
         //初始化玩家背包空间容量
         inventoryListCapacityIntArry[(int)InventoryLocation.player] = Settings.playerInitialInventoryCapacity;
+
+        //inventoryListCapacityIntArry[(int)InventoryLocation.chest] = Settings.
     }
 
     /// <summary>
@@ -234,6 +267,34 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
     }
 
     /// <summary>
+    /// 获取选中的库存物品的物品代码
+    /// </summary>
+    /// <param name="inventoryLocation"></param>
+    /// <returns></returns>
+    private int GetSelectedInventoryItem(InventoryLocation inventoryLocation)
+    {
+        return selectedInventoryItem[(int)inventoryLocation];
+    }
+
+    /// <summary>
+    /// 获取选中的物品的物品详情
+    /// </summary>
+    /// <param name="inventoryLocation"></param>
+    /// <returns></returns>
+    public ItemDetails GetSelectedInventoryItemDetails(InventoryLocation inventoryLocation)
+    {
+        int itemCode = GetSelectedInventoryItem(inventoryLocation);
+        if (itemCode == -1)
+        {
+            return null;
+        }
+        else
+        {
+            return GetItemDetails(itemCode);
+        }
+    }
+
+    /// <summary>
     /// 移除库存中的物品
     /// </summary>
     /// <param name="player"></param>
@@ -357,4 +418,23 @@ public class InventoryManager : SingletonMonoBehvior<InventoryManager>
         selectedInventoryItem[(int)inventoryLocation] = -1;
     }
 
+    public void ISaveableRegister()
+    {
+        
+    }
+
+    public void ISaveableDeregister()
+    {
+        
+    }
+
+    public void ISaveableStoreScene(string sceneName)
+    {
+        
+    }
+
+    public void ISaveableRestoreScene(string sceneName)
+    {
+        
+    }
 }
