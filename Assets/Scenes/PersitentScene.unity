@@ -1194,11 +1194,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 849d6d76fa971404bb0be856c4c18a8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grid: {fileID: 0}
   so_gridPropertiesArry:
   - {fileID: 11400000, guid: decb023765cd5594e98115d63355fc76, type: 2}
   - {fileID: 11400000, guid: 8da49854c6f80a24e914b267bdceb73e, type: 2}
   - {fileID: 11400000, guid: 05c5c60df4a73d042ae062025ac8ba37, type: 2}
+  dugGround:
+  - {fileID: 11400000, guid: b1596f071a3bc2841ab4678ae9ffe450, type: 2}
+  - {fileID: 11400000, guid: 149a187ca640a8c40bfb69beafda11e5, type: 2}
+  - {fileID: 11400000, guid: c791ab4253a484e40b175f71f97d855b, type: 2}
+  - {fileID: 11400000, guid: 6a075f72835be054b82ba02e4e616b11, type: 2}
+  - {fileID: 11400000, guid: fb585cb0faa5cae4f9cca5baa538f470, type: 2}
+  - {fileID: 11400000, guid: 98a2d85ce0c3cbe4687550900336a7e4, type: 2}
+  - {fileID: 11400000, guid: 2f94ae648decf1340bdacb3ae9541d09, type: 2}
+  - {fileID: 11400000, guid: b63bc41aaa39ae949ad9eb6b63e47ea2, type: 2}
+  - {fileID: 11400000, guid: 5b5b0437675c9b846bd1acc69f62aefb, type: 2}
+  - {fileID: 11400000, guid: 39e1096405f198d4e92c283feb9baa06, type: 2}
+  - {fileID: 11400000, guid: 252d714ca4138774a9417df2d179c189, type: 2}
+  - {fileID: 11400000, guid: 11d054d299ae9a34d8adb31234286fb9, type: 2}
+  - {fileID: 11400000, guid: 5fe8b92d0425a6c419ab4a1c88465f39, type: 2}
+  - {fileID: 11400000, guid: 86de00b91bb16774c98a7a501ca5e775, type: 2}
+  - {fileID: 11400000, guid: f94c6d151511a3343a7bd5d1ea92867b, type: 2}
+  - {fileID: 11400000, guid: b57d1da396759604e906b111de873c1e, type: 2}
+  wateredGround:
+  - {fileID: 11400000, guid: 523029d3f42669941a002ab2323468e7, type: 2}
+  - {fileID: 11400000, guid: 396d48e6751cce844a298d13f23d4588, type: 2}
+  - {fileID: 11400000, guid: 5fbe3c7dc2b0b204ca317f201787ce8e, type: 2}
+  - {fileID: 11400000, guid: 7293b9eb9555a8b4daba2021d41099e8, type: 2}
+  - {fileID: 11400000, guid: 38232f64145095845a3652316e92d567, type: 2}
+  - {fileID: 11400000, guid: 1617ae2fbfb87ae48accb37da06bf5df, type: 2}
+  - {fileID: 11400000, guid: de00c4fee4101a5478c21688cdb57742, type: 2}
+  - {fileID: 11400000, guid: d1aa44b55373dfd45a94185109b1aad0, type: 2}
+  - {fileID: 11400000, guid: 1dc7e88b2b38f324eb18f5e5f7a53bed, type: 2}
+  - {fileID: 11400000, guid: 4694617a3547d564daf9bdfed1d4ca7d, type: 2}
+  - {fileID: 11400000, guid: c656f9e883e910f43bbbba24dba09bcb, type: 2}
+  - {fileID: 11400000, guid: 1fec1c0015dd3674f95a97550a46f6be, type: 2}
+  - {fileID: 11400000, guid: 4e6258e3a85876345bcae4ec2625d71d, type: 2}
+  - {fileID: 11400000, guid: 271f7193be9e2e744885817158aa6d7c, type: 2}
+  - {fileID: 11400000, guid: 7388fdd4b0e4c22428a71b503d2c9a71, type: 2}
+  - {fileID: 11400000, guid: c7856711d3048d94d8a2fc572d44eab1, type: 2}
 --- !u!114 &566652638
 MonoBehaviour:
   m_ObjectHideFlags: 0

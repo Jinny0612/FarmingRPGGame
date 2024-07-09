@@ -14,4 +14,7 @@ public static class Tags
     /// 物体父类位置
     /// </summary>
     public const string ItemParentTransform = "ItemParentTransform";
+
+    public const string GroundDecoration1 = "GroundDecoration1";
+    public const string GroundDecoration2 = "GroundDecoration2";
 }

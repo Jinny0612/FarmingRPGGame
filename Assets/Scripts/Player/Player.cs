@@ -40,6 +40,7 @@ public class Player : SingletonMonoBehvior<Player>
     #endregion
 
     #region 角色动画切换相关
+
     /// <summary>
     /// 动画覆盖，用于更改动画控制器中的动画剪辑，可以在运行时替换动画剪辑
     /// 从而实现角色在不同状态、行为或者环境下播放不同的动画，并且无需修改动画剪辑本身
@@ -64,6 +65,7 @@ public class Player : SingletonMonoBehvior<Player>
     /// 角色可切换的属性，工具
     /// </summary>
     private CharacterAttribute toolCharacterAttribute;
+
     #endregion
 
 
@@ -77,6 +79,8 @@ public class Player : SingletonMonoBehvior<Player>
     /// </summary>
     private bool playerToolUseDisabled = false;
 
+    #region 等待时间
+
     /// <summary>
     /// 使用工具后暂停
     /// </summary>
@@ -85,6 +89,16 @@ public class Player : SingletonMonoBehvior<Player>
     /// 使用工具时暂停
     /// </summary>
     private WaitForSeconds useToolAnimationPause;
+    /// <summary>
+    /// 举起工具后暂停
+    /// </summary>
+    private WaitForSeconds afterLiftToolAnimationPause;
+    /// <summary>
+    /// 举起工具时暂停
+    /// </summary>
+    private WaitForSeconds liftToolAnimationPause;
+
+    #endregion
 
     /// <summary>
     /// 主相机
@@ -126,8 +140,12 @@ public class Player : SingletonMonoBehvior<Player>
     private void Start()
     {
         gridCursor = FindObjectOfType<GridCursor>();
+
         useToolAnimationPause = new WaitForSeconds(Settings.useToolAnimationPause);
         afterUseToolAnimationPause = new WaitForSeconds(Settings.afterUseToolAnimationPause);
+
+        liftToolAnimationPause = new WaitForSeconds(Settings.liftToolAnimationPause);
+        afterLiftToolAnimationPause = new WaitForSeconds(Settings.afterLiftToolAnimationPause);
     }
 
     private void Update()
@@ -265,6 +283,7 @@ public class Player : SingletonMonoBehvior<Player>
                     }
                     break;
 
+                case ItemType.Watering_tool:
                 case ItemType.Hoeing_tool:
                     ProcessPlayerClickInputTool(gridPropertyDetails, itemDetails, playerDirection);
                     break;
@@ -297,8 +316,90 @@ public class Player : SingletonMonoBehvior<Player>
                     HoeGroundAtCursor(gridPropertyDetails, playerDirection);
                 }
                 break;
+
+            case ItemType.Watering_tool:
+                if (gridCursor.CursorPositionIsValid)
+                {
+                    WaterGroundAtCursor(gridPropertyDetails, playerDirection);
+                }
+                break;
+
             default : break;
         }
+    }
+
+    /// <summary>
+    /// 在光标处浇水
+    /// </summary>
+    /// <param name="gridPropertyDetails"></param>
+    /// <param name="playerDirection"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    private void WaterGroundAtCursor(GridPropertyDetails gridPropertyDetails, Vector3Int playerDirection)
+    {
+        // 触发动画
+        StartCoroutine(WaterGroundAtCursorRoutine(playerDirection, gridPropertyDetails));
+    }
+
+
+    /// <summary>
+    /// 在光标处浇水的例程
+    /// </summary>
+    /// <param name="playerDirection"></param>
+    /// <param name="gridPropertyDetails"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    private IEnumerator WaterGroundAtCursorRoutine(Vector3Int playerDirection, GridPropertyDetails gridPropertyDetails)
+    {
+        // 禁止玩家输入和使用工具
+        PlayerInputIsDisabled = true;
+        playerToolUseDisabled = false;
+
+        // 设置工具动画为喷壶
+        toolCharacterAttribute.partVariantType = PartVariantType.wateringCan;
+        characterAttributeCustomissationList.Clear();
+        characterAttributeCustomissationList.Add(toolCharacterAttribute);
+        animationOverrides.ApplyCharacterCustomisationParameters(characterAttributeCustomissationList);
+
+        // todo :需要先判断喷壶中是否有水
+        toolEffect = ToolEffect.watering;
+
+        if(playerDirection == Vector3Int.right)
+        {
+            isLiftingToolRight = true;
+        }
+        else if(playerDirection == Vector3Int.left)
+        {
+            isLiftingToolLeft = true;
+        }
+        else if(playerDirection == Vector3Int.up)
+        {
+            isLiftingToolUp = true;
+        }
+        else if (playerDirection == Vector3Int.down)
+        {
+            isLiftingToolDown = true;
+        }
+        // 暂停指定浇水中的事件
+        yield return liftToolAnimationPause;
+
+        // 设置当前网格不能再被浇水
+        if(gridPropertyDetails.daysSinceWatered == -1)
+        {
+            // 网格之前未被浇水过，设置为已浇水
+            gridPropertyDetails.daysSinceWatered = 0;
+        }
+
+        // 设置浇水的网格属性
+        GridPropertiesManager.Instance.SetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY, gridPropertyDetails);
+        // 显示浇水的网格
+        GridPropertiesManager.Instance.DisplayWateredGround(gridPropertyDetails);
+
+        // 动画结束后暂定指定时间
+        yield return afterLiftToolAnimationPause;
+
+        // 恢复角色输入和工具使用
+        PlayerInputIsDisabled = false;
+        playerToolUseDisabled = false;
     }
 
     /// <summary>
@@ -313,7 +414,7 @@ public class Player : SingletonMonoBehvior<Player>
     }
 
     /// <summary>
-    /// 触底动画触发
+    /// 锄地动画触发
     /// </summary>
     /// <param name="playerDirection"></param>
     /// <param name="gridPropertyDetails"></param>
@@ -357,7 +458,11 @@ public class Player : SingletonMonoBehvior<Player>
             gridPropertyDetails.daysSinceDug = 0;
         }
         GridPropertiesManager.Instance.SetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY, gridPropertyDetails);
-        //挖掘后暂停  放置动画触发得太快了
+
+        // 显示锄地挖掘的网格
+        GridPropertiesManager.Instance.DisplayDugGround(gridPropertyDetails);
+
+        //挖掘后暂停  防止动画触发得太快了
         yield return afterUseToolAnimationPause;
 
         //动画完全结束，解除对角色移动和使用工具的禁止

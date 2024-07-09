@@ -87,9 +87,17 @@ public static class Settings
     /// </summary>
     public static float useToolAnimationPause = 0.25f;
     /// <summary>
+    /// 举起工具时暂停的时间
+    /// </summary>
+    public static float liftToolAnimationPause = 0.4f;
+    /// <summary>
     /// 使用工具后暂停的时间
     /// </summary>
     public static float afterUseToolAnimationPause = 0.2f;
+    /// <summary>
+    /// 举起工具后暂停的时间
+    /// </summary>
+    public static float afterLiftToolAnimationPause = 0.4f;
 
     #endregion
 
