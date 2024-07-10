@@ -33,6 +33,7 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     /// 网格光标
     /// </summary>
     private GridCursor gridCursor;
+    private Cursor cursor;
 
     /// <summary>
     /// 槽位的边框
@@ -97,6 +98,7 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     {
         mainCamera = Camera.main;
         gridCursor = FindObjectOfType<GridCursor>();
+        cursor = FindObjectOfType<Cursor>();
         //父物品位置
         //parentItem = GameObject.FindGameObjectWithTag(Tags.ItemParentTransform).transform;
     }
@@ -107,7 +109,10 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
     private void ClearCursors()
     {
         gridCursor.DisableCursor();
+        cursor.DisableCursor();
+
         gridCursor.SelectedItemType = ItemType.none;
+        cursor.SelectedItemType = ItemType.none;
     }
 
     /// <summary>
@@ -327,6 +332,8 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
 
         //设置网格光标半径
         gridCursor.ItemUserGridRadius = itemDetails.itemUseGridRadius;
+        cursor.ItemUseRadius = itemDetails.itemUseRadius;
+
         //物品使用网格半径》0时显示光标
         if(itemDetails.itemUseGridRadius > 0)
         {
@@ -336,8 +343,19 @@ public class UIInventorySlot : MonoBehaviour , IBeginDragHandler, IEndDragHandle
         {
             gridCursor.DisableCursor();
         }
+        if (itemDetails.itemUseRadius > 0)
+        {
+            cursor.EnableCursor();
+        }
+        else
+        {
+            cursor.DisableCursor();
+        }
+
+
         //设置被选中物品的类型
         gridCursor.SelectedItemType = itemDetails.itemType;
+        cursor.SelectedItemType = itemDetails.itemType;
 
         //设置被选中的物品
         InventoryManager.Instance.SetSelectedInventoryItem(InventoryLocation.player, itemDetails.itemCode);

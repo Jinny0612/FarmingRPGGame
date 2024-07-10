@@ -31,6 +31,16 @@ public static class Settings
     public static int playerMaximumInventoryCapacity = 48;
     #endregion
 
+    #region player
+
+    /// <summary>
+    /// 玩家中心点Y轴偏移量  0.875个单位
+    /// 16像素为一单位
+    /// </summary>
+    public static float playerCenterYOffset = 0.875f;
+
+    #endregion
+
     #region 玩家动画参数，名称与unity中设置的动画参数相同
     //与player动画器中的参数名相同
     //玩家动画参数
@@ -75,6 +85,19 @@ public static class Settings
     public const string ReapingTool = "Scythe";
     public const string WateringTool = "Watering Can";
     public const string CollectingTool = "Basket";
+    #endregion
+
+    #region 收割作物
+
+    /// <summary>
+    /// 检测区域下方可检测到的最大物体数量
+    /// </summary>
+    public const int maxCollidersToTestPerReapSwing = 15;
+    /// <summary>
+    /// 每次收割最多收割数量（即摧毁被收割物体数量）
+    /// </summary>
+    public const int maxTargetComponentsToDestroyPerReapSwing = 2;
+
     #endregion
 
     #region 时间系统

@@ -73,6 +73,10 @@ public class Player : SingletonMonoBehvior<Player>
     /// 网格光标
     /// </summary>
     private GridCursor gridCursor;
+    /// <summary>
+    /// 可收割物品的光标
+    /// </summary>
+    private Cursor cursor;
 
     /// <summary>
     /// 禁用角色使用工具
@@ -131,15 +135,30 @@ public class Player : SingletonMonoBehvior<Player>
         animationOverrides = GetComponentInChildren<AnimationOverrides>();
         //实例化可切换的角色属性
         armsCharacterAttribute = new CharacterAttribute(CharacterPartAnimator.Arms, PartVariantColour.none, PartVariantType.none);
+        toolCharacterAttribute = new CharacterAttribute(CharacterPartAnimator.Tool, PartVariantColour.none, PartVariantType.hoe);
+        
         characterAttributeCustomissationList = new List<CharacterAttribute>();
 
         //获取主相机的引用
         mainCamera = Camera.main;
     }
 
+    private void OnEnable()
+    {
+        EventHandler.BeforeSceneUnloadFadeOutEvent += DisablePlayerInputAndResetMovement;
+        EventHandler.AfterSceneLoadFadeInEvent += EnablePlayerInput;
+    }
+
+    private void OnDisable()
+    {
+        EventHandler.BeforeSceneUnloadFadeOutEvent -= DisablePlayerInputAndResetMovement;
+        EventHandler.AfterSceneLoadFadeInEvent -= EnablePlayerInput;
+    }
+
     private void Start()
     {
         gridCursor = FindObjectOfType<GridCursor>();
+        cursor = FindObjectOfType<Cursor>();
 
         useToolAnimationPause = new WaitForSeconds(Settings.useToolAnimationPause);
         afterUseToolAnimationPause = new WaitForSeconds(Settings.afterUseToolAnimationPause);
@@ -237,7 +256,7 @@ public class Player : SingletonMonoBehvior<Player>
 
             if (Input.GetMouseButton(0))
             {
-                if (gridCursor.CursorIsEnabled)
+                if (gridCursor.CursorIsEnabled || cursor.CursorIsEnabled)
                 {
                     //获取光标和角色的坐标
                     Vector3Int cursorGridPosition = gridCursor.GetGridPositionForCursor();
@@ -285,6 +304,7 @@ public class Player : SingletonMonoBehvior<Player>
 
                 case ItemType.Watering_tool:
                 case ItemType.Hoeing_tool:
+                case ItemType.Reaping_tool:
                     ProcessPlayerClickInputTool(gridPropertyDetails, itemDetails, playerDirection);
                     break;
 
@@ -321,6 +341,16 @@ public class Player : SingletonMonoBehvior<Player>
                 if (gridCursor.CursorPositionIsValid)
                 {
                     WaterGroundAtCursor(gridPropertyDetails, playerDirection);
+                }
+                break;
+
+            case ItemType.Reaping_tool:
+                if (cursor.CursorPositionIsValid)
+                {
+                    // 获取玩家方向
+                    playerDirection = GetPlayerDirection(cursor.GetWorldPositionForCursor(), GetPlayerCenterPosition());
+                    // 根据朝向触发不同收割动画
+                    ReapInPlayerDirectionAtCursor(itemDetails, playerDirection);
                 }
                 break;
 
@@ -470,6 +500,86 @@ public class Player : SingletonMonoBehvior<Player>
         playerToolUseDisabled = false;
     }
 
+    private void ReapInPlayerDirectionAtCursor(ItemDetails itemDetails, Vector3Int playerDirection)
+    {
+        StartCoroutine(ReapInPlayerDirectionAtCursorRoutine(itemDetails, playerDirection));
+    }
+
+    private IEnumerator ReapInPlayerDirectionAtCursorRoutine(ItemDetails itemDetails, Vector3Int playerDirection)
+    {
+        PlayerInputIsDisabled = true;
+        playerToolUseDisabled = true;
+
+        toolCharacterAttribute.partVariantType = PartVariantType.scythe;
+        characterAttributeCustomissationList.Clear();
+        characterAttributeCustomissationList.Add(toolCharacterAttribute);
+        animationOverrides.ApplyCharacterCustomisationParameters(characterAttributeCustomissationList);
+
+        UseToolInPlayerDirection(itemDetails, playerDirection);
+
+        yield return useToolAnimationPause;
+
+        PlayerInputIsDisabled = false;
+        playerToolUseDisabled = false;
+    }
+
+    private void UseToolInPlayerDirection(ItemDetails equippedItemDetails, Vector3Int playerDirection)
+    {
+        if (Input.GetMouseButton(0))
+        {
+            switch (equippedItemDetails.itemType)
+            {
+                case ItemType.Reaping_tool:
+                    if(playerDirection == Vector3Int.right)
+                    {
+                        isSwingingToolRight = true;
+                    }
+                    else if (playerDirection == Vector3Int.left)
+                    {
+                        isSwingingToolLeft = true;
+                    }
+                    else if(playerDirection == Vector3Int.up)
+                    {
+                        isSwingingToolUp = true;
+                    }
+                    else if(playerDirection == Vector3Int.down)
+                    {
+                        isSwingingToolDown = true;
+                    }
+                    break;
+            }
+
+            Vector2 point = new Vector2(GetPlayerCenterPosition().x + (playerDirection.x * (equippedItemDetails.itemUseRadius / 2f)), GetPlayerCenterPosition().y
+                    + playerDirection.y * (equippedItemDetails.itemUseRadius / 2f));
+
+            Vector2 size = new Vector2(equippedItemDetails.itemUseRadius, equippedItemDetails.itemUseRadius);
+
+            Item[] itemArray = HelperMethods.GetComponentsAtBoxLocationNonAlloc<Item>(Settings.maxCollidersToTestPerReapSwing, point, size, 0f);
+
+            int reapableItemCount = 0;
+
+            for(int i = itemArray.Length - 1; i >= 0; i--)
+            {
+                if (itemArray[i] != null)
+                {
+                    if (InventoryManager.Instance.GetItemDetails(itemArray[i].ItemCode).itemType == ItemType.Reapable_scenary)
+                    {
+                        Vector3 effectPosition = new Vector3(itemArray[i].transform.position.x, itemArray[i].transform.position.y + Settings.gridCellSize / 2f,
+                            itemArray[i].transform.position.z);
+
+                        Destroy(itemArray[i].gameObject);
+
+                        reapableItemCount++;
+                        if(reapableItemCount >= Settings.maxTargetComponentsToDestroyPerReapSwing)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// 对比光标和角色位置来判断方向
     /// </summary>
@@ -488,6 +598,38 @@ public class Player : SingletonMonoBehvior<Player>
             return Vector3Int.left;
         }
         else if(cursorGridPosition.y > playerGridPosition.y)
+        {
+            return Vector3Int.up;
+        }
+        else
+        {
+            return Vector3Int.down;
+        }
+    }
+
+    /// <summary>
+    /// 获取player方向
+    /// </summary>
+    /// <param name="cursorPosition"></param>
+    /// <param name="playerPosition"></param>
+    /// <returns></returns>
+    private Vector3Int GetPlayerDirection(Vector3 cursorPosition, Vector3 playerPosition)
+    {
+        if(cursorPosition.x > playerPosition.x &&
+            cursorPosition.y < (playerPosition.y + cursor.ItemUseRadius / 2f) &&
+            cursorPosition.y > (playerPosition.y - cursor.ItemUseRadius / 2f))
+        {
+            return Vector3Int.right;
+        }
+        else if( cursorPosition.x < playerPosition.x
+                &&
+                cursorPosition.y < (playerPosition.y + cursor.ItemUseRadius / 2f)
+                &&
+                cursorPosition.y > (playerPosition.y - cursor.ItemUseRadius / 2f))
+        {
+            return Vector3Int.left;
+        }
+        else if(cursorPosition.y > playerPosition.y)
         {
             return Vector3Int.up;
         }
@@ -698,6 +840,15 @@ public class Player : SingletonMonoBehvior<Player>
             //正在携带物品
             isCarrying = true;
         }
+    }
+
+    /// <summary>
+    /// 获取player的中心点位置
+    /// </summary>
+    /// <returns></returns>
+    public Vector3 GetPlayerCenterPosition()
+    {
+        return new Vector3(transform.position.x, transform.position.y + Settings.playerCenterYOffset, transform.position.z);
     }
 
     /// <summary>
