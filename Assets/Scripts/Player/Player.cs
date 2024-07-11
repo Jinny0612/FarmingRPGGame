@@ -11,6 +11,7 @@ using UnityEngine;
 /// </summary>
 public class Player : SingletonMonoBehvior<Player>
 {
+
     #region 角色行为
 
     private float yInput;
@@ -564,8 +565,11 @@ public class Player : SingletonMonoBehvior<Player>
                 {
                     if (InventoryManager.Instance.GetItemDetails(itemArray[i].ItemCode).itemType == ItemType.Reapable_scenary)
                     {
+                        // 收获效果应该出现的位置
                         Vector3 effectPosition = new Vector3(itemArray[i].transform.position.x, itemArray[i].transform.position.y + Settings.gridCellSize / 2f,
                             itemArray[i].transform.position.z);
+
+                        EventHandler.CallHarvestActionEffectEvent(effectPosition, HarvestActionEffect.reaping);
 
                         Destroy(itemArray[i].gameObject);
 
@@ -773,11 +777,7 @@ public class Player : SingletonMonoBehvior<Player>
             TimeManager.Instance.TestAdvanceGameDay();
         }
 
-        //测试场景加载
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            SceneControllerManager.Instance.FadeAndLoadScene(SceneName.Scene1_Farm.ToString(),transform.position);
-        }
+        
     }
 
     /// <summary>

@@ -10,6 +10,34 @@ public enum ToolEffect
     watering//浇水
 }
 
+/// <summary>
+/// 收获行为效果
+/// </summary>
+public enum HarvestActionEffect
+{
+    /// <summary>
+    /// 落叶
+    /// </summary>
+    deciduousLeavesFalling,
+    /// <summary>
+    /// 松果掉落
+    /// </summary>
+    pineConesFalling,
+    /// <summary>
+    /// 砍树
+    /// </summary>
+    choppingTreeTrunk,
+    /// <summary>
+    /// 敲石头（挖矿）
+    /// </summary>
+    breakingStone,
+    /// <summary>
+    /// 收割作物等
+    /// </summary>
+    reaping,
+    none
+}
+
 //移动方向
 public enum Direction
 {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// 玩家移动相关事件代理  定义移动事件需要设置的参数
@@ -261,6 +262,19 @@ public static class EventHandler
         {
             AfterSceneLoadFadeInEvent();
         }
+    }
+
+    #endregion
+
+
+    #region  VFX相关事件
+
+    // 收获行为VFX效果事件
+    public static event Action<Vector3, HarvestActionEffect> HarvestActionEffectEvent;
+
+    public static void CallHarvestActionEffectEvent(Vector3 effectPosition, HarvestActionEffect harvestActionEffect)
+    {
+        HarvestActionEffectEvent?.Invoke(effectPosition, harvestActionEffect);
     }
 
     #endregion
